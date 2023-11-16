@@ -30,8 +30,7 @@
 }
 
 .fixed-piece {
-    background-color: #666;
-
+    filter: brightness(50%);
 }
 
 #score {

@@ -6,6 +6,8 @@ class Tetris {
         this.pieces = new Pieces();
         this.collisions = new Collisions(this);
         this.score = null;
+        this.intervalID = null;
+        this.colors = ['#ffff00', '#0000ff','#ffa500', '#ffc0cb', '#ff0000', '#008000', '#800080'];
         this.init();
     }
 
@@ -29,13 +31,9 @@ class Tetris {
 
     gameLoop() {
         const interval = 250; //ms
-        const intervalID = setInterval(() => {
-            /*this.checkLines();
-            if(this.checkGameOver()) {
-                console.log('Game Over');
-                clearInterval(intervalID);
-            }*/
-            //this.moveDown();
+        this.intervalID = setInterval(() => {
+            this.moveDown();
+            this.checkLines();
         }, interval);
     }
 
@@ -43,6 +41,9 @@ class Tetris {
         const cells = document.querySelectorAll('.cell');
         cells.forEach(cell => {
             cell.classList.remove('piece');
+            if(!cell.classList.contains('fixed-piece')){
+              cell.style.backgroundColor = '';
+            }
         });
     }
 
@@ -52,6 +53,7 @@ class Tetris {
           if (col === 1) {
             const cellIndex = (this.currentPiecePosition.x + colIndex) + (this.currentPiecePosition.y + rowIndex) * 10;
             document.querySelectorAll(".cell")[cellIndex].classList.add("piece");
+            document.querySelectorAll(".cell")[cellIndex].style.backgroundColor = this.colors[this.pieces.pieceShapeIndex];
           }
         });
       });
@@ -65,6 +67,7 @@ class Tetris {
         document.querySelectorAll('.piece').forEach(cell => {
           cell.classList.remove('piece');
           cell.classList.add('fixed-piece');
+          cell.style.backgroundColor = this.colors[this.pieces.pieceShapeIndex];
         });
         this.updateScore();
     }
@@ -96,10 +99,50 @@ class Tetris {
             this.currentPiecePosition.y++;
             this.drawPiece();
         } else {
-            this.stopPiece();
-            this.pieces = new Pieces();
-            this.currentPiecePosition = { x: 4, y: 0};
+            if (this.currentPiecePosition.y <= 0) {
+                this.gameOver();
+            } else {
+                this.stopPiece();
+                this.pieces = new Pieces();
+                this.currentPiecePosition = { x: 4, y: 0};
+            }
         }
+    }
+
+    gameOver(){
+        console.log('Game Over');
+        clearInterval(this.intervalID);
+        window.alert('Game Over !');
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.classList.remove('piece', 'fixed-piece');
+        })
+        this.gameLoop();
+        this.score.resetScore();
+    }
+
+    checkLines() {
+      let completedLinesStartIndexes = [];
+      let fixedCellsOnLineCount = 0;
+      for(let i = 0; i < this.grid.children.length; i++) {
+        let cell = this.grid.children[i];
+        if (i % 10 === 0) {
+          fixedCellsOnLineCount = 0;
+        }
+        if(cell.classList.contains('fixed-piece')) {
+          fixedCellsOnLineCount++;
+        }
+        if (fixedCellsOnLineCount === 10) {
+          completedLinesStartIndexes.push(i-9);
+        }
+      }
+
+      for(let i = 0; i < completedLinesStartIndexes.length; i++) {
+        for(let j = completedLinesStartIndexes[i]; j < completedLinesStartIndexes[i] + 10; j++) {
+          this.grid.children[j].remove();
+          this.grid.insertAdjacentHTML('afterbegin', '<div class="cell"></div>');
+        }
+      }
     }
 }
 
@@ -114,7 +157,8 @@ class Pieces {
             [[1, 1, 0], [0, 1, 1]],     // Z
             [[0, 1, 0], [1, 1, 1]],     // T
         ]
-        this.shape = this.piecesList[Math.floor(Math.random()* this.piecesList.length)];
+        this.pieceShapeIndex = Math.floor(Math.random()* this.piecesList.length);
+        this.shape = this.piecesList[this.pieceShapeIndex];
     }
     
 }
@@ -156,7 +200,7 @@ class Collisions {
 
                 const cellIndex = (nextPosition.x + col) + (nextPosition.y + row) * 10;
                 const cell = document.querySelectorAll('.cell')[cellIndex];
-                if (cell && cell.classList.contains('fixed-piece')) {
+                if (shape[row][col] === 1 && cell && cell.classList.contains('fixed-piece')) {
                     return false;
                 }
             }
@@ -174,6 +218,11 @@ class Score {
 
     incrementScore() {
         this.score += 10;
+    }
+
+    resetScore() {
+        this.score = 0;
+        tetris.updateScore();
     }
 
     getScore() {
