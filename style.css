@@ -1,0 +1,37 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#game-container {
+    position: relative;
+    border: 2px solid lightgrey;
+    background-color: white;
+    overflow: hidden;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(20, 1fr);
+    width: 300px;
+    height: 600px;
+    background-color: lightblue;
+    border: 2px solid black;
+}
+
+.cell {
+    border: 1px solid darkgrey;
+}
+
+.piece {
+    background-color: #333;
+}
+
+#score {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: black;
+}
