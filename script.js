@@ -5,12 +5,14 @@ class Tetris {
         this.currentPiecePosition = null;
         this.pieces = new Pieces();
         this.collisions = new Collisions(this);
+        this.score = null;
         this.init();
     }
 
     init() {
         this.drawGrid();
         this.currentPiecePosition = { x: 4, y: 0}
+        this.score = new Score();
         this.drawPiece();
         this.gameLoop();
     }
@@ -26,14 +28,14 @@ class Tetris {
     }
 
     gameLoop() {
-        const interval = 500; //ms
+        const interval = 250; //ms
         const intervalID = setInterval(() => {
             /*this.checkLines();
             if(this.checkGameOver()) {
                 console.log('Game Over');
                 clearInterval(intervalID);
-            }*
-            this.moveDown();*/
+            }*/
+            //this.moveDown();
         }, interval);
     }
 
@@ -60,7 +62,7 @@ class Tetris {
         this.score.incrementScore();
         
         // Marquer les cases de la piece comme fixes, pour pouvoir vérifier les lignes complètes
-        document.querySelectorAll('.cell').forEach(cell => {
+        document.querySelectorAll('.piece').forEach(cell => {
           cell.classList.remove('piece');
           cell.classList.add('fixed-piece');
         });
@@ -95,7 +97,8 @@ class Tetris {
             this.drawPiece();
         } else {
             this.stopPiece();
-            this.spawnPiece();
+            this.pieces = new Pieces();
+            this.currentPiecePosition = { x: 4, y: 0};
         }
     }
 }
@@ -103,13 +106,13 @@ class Tetris {
 class Pieces {
     constructor() {
         this.piecesList = [
-            [[1, 1], [1, 1]], // O
-            [[1], [1], [1], [1]], // I
-            [[1, 0], [1, 0], [1, 1]], // L
-            [[0, 1], [0, 1], [1, 1]], // J
-            [[0, 1, 1], [0, 1, 1]], // S
-            [[1, 1, 0], [0, 1, 1]], // Z
-            [[0, 1, 0], [1, 1, 1]], // T
+            [[1, 1], [1, 1]],           // O
+            [[1], [1], [1], [1]],       // I
+            [[1, 0], [1, 0], [1, 1]],   // L
+            [[0, 1], [0, 1], [1, 1]],   // J
+            [[0, 1, 1], [1, 1, 0]],     // S
+            [[1, 1, 0], [0, 1, 1]],     // Z
+            [[0, 1, 0], [1, 1, 1]],     // T
         ]
         this.shape = this.piecesList[Math.floor(Math.random()* this.piecesList.length)];
     }
@@ -153,7 +156,7 @@ class Collisions {
 
                 const cellIndex = (nextPosition.x + col) + (nextPosition.y + row) * 10;
                 const cell = document.querySelectorAll('.cell')[cellIndex];
-                if (cell & cell.classList.contains('fixed-piece')) {
+                if (cell && cell.classList.contains('fixed-piece')) {
                     return false;
                 }
             }

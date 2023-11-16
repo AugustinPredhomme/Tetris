@@ -29,6 +29,11 @@
     background-color: #333;
 }
 
+.fixed-piece {
+    background-color: #666;
+
+}
+
 #score {
     margin-top: 10px;
     margin-bottom: 10px;
