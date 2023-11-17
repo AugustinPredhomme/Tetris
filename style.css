@@ -4,11 +4,14 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
-#game-container {
-    position: relative;
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: 2px solid lightgrey;
     background-color: white;
     overflow: hidden;
+    height: 95vh;
 }
 
 .grid {
@@ -17,7 +20,8 @@
     grid-template-rows: repeat(20, 1fr);
     width: 300px;
     height: 600px;
-    background-color: lightblue;
+    /*background-color: lightblue;*/
+    background-color: white;
     border: 2px solid black;
 }
 

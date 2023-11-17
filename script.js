@@ -3,6 +3,7 @@ class Tetris {
         this.grid = document.getElementById('grid');
         this.shape = null;
         this.currentPiecePosition = null;
+        this.piecesList = [];
         this.pieces = new Pieces();
         this.collisions = new Collisions(this);
         this.score = null;
@@ -15,7 +16,12 @@ class Tetris {
         this.drawGrid();
         this.currentPiecePosition = { x: 4, y: 0}
         this.score = new Score();
+        for(let i =0; i<4; i++) {
+            this.piecesList.push(new Pieces());
+        }
+        this.pieces = this.piecesList.shift(); // 1 pièce affichée, 3 en preview
         this.drawPiece();
+        this.drawPreview();
         this.gameLoop();
     }
 
@@ -29,11 +35,16 @@ class Tetris {
         }
     }
 
+    drawPreview() {
+        
+    }
+
     gameLoop() {
         const interval = 250; //ms
         this.intervalID = setInterval(() => {
             this.moveDown();
             this.checkLines();
+            this.drawPreview();
         }, interval);
     }
 
@@ -103,8 +114,11 @@ class Tetris {
                 this.gameOver();
             } else {
                 this.stopPiece();
-                this.pieces = new Pieces();
+                this.pieces = this.piecesList.shift();
+                this.piecesList.push(new Pieces());
+                console.log(this.piecesList);
                 this.currentPiecePosition = { x: 4, y: 0};
+                this.drawPiece();
             }
         }
     }
@@ -112,7 +126,7 @@ class Tetris {
     gameOver(){
         console.log('Game Over');
         clearInterval(this.intervalID);
-        window.alert('Game Over !');
+        //window.alert('Game Over !');
         const cells = document.querySelectorAll('.cell');
         cells.forEach(cell => {
             cell.classList.remove('piece', 'fixed-piece');
@@ -144,6 +158,19 @@ class Tetris {
         }
       }
     }
+
+    rotate() {
+        const rotatedShape = this.pieces.rotate();
+        const canRotateBottom = this.collisions.checkCollision(0, 0, rotatedShape);
+        const canRotateLeft = this.collisions.checkCollision(-1, 0, rotatedShape);
+        const canRotateRight = this.collisions.checkCollision(1, 0, rotatedShape);
+
+        if (canRotateBottom && canRotateLeft && canRotateRight) {
+            this.clearPiece();
+            this.pieces.shape = rotatedShape;
+            this.drawPiece();
+        }
+    }
 }
 
 class Pieces {
@@ -159,6 +186,18 @@ class Pieces {
         ]
         this.pieceShapeIndex = Math.floor(Math.random()* this.piecesList.length);
         this.shape = this.piecesList[this.pieceShapeIndex];
+    }
+
+    rotate() {
+        const newShape = [];
+        for (let col = 0; col < this.shape[0].length; col++) {
+            const newRow = [];
+            for (let row = this.shape.length - 1; row >= 0; row--) {
+                newRow.push(this.shape[row][col]);
+            }
+            newShape.push(newRow);
+        }
+        return newShape;
     }
     
 }
@@ -180,8 +219,11 @@ class Collisions {
         return this.checkCollision(0, 1);
     }
 
-    checkCollision(X, Y) {
-        const shape = this.tetris.pieces.shape;
+    checkCollision(X, Y, customShape = null) {
+        let shape = this.tetris.pieces.shape;
+        if(customShape) {
+            shape = customShape;
+        }
         const nextPosition = {
             x: this.tetris.currentPiecePosition.x + X,
             y: this.tetris.currentPiecePosition.y + Y
@@ -240,6 +282,9 @@ document.addEventListener('keydown', (e) => {
             break;
         case 'ArrowDown':
             tetris.moveDown();
+            break;
+        case 'ArrowUp' :
+            tetris.rotate();
             break;
         default:
             break;
