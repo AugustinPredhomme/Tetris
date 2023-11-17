@@ -25,6 +25,28 @@
     border: 2px solid black;
 }
 
+.preview {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: flex-start; */
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+    width: 100px;
+    /* height: 250px; */
+}
+
+.preview img {
+    object-fit: contain;
+}
+
+.preview img:not(:first-child) {
+    transform: scale(0.5);
+}
+
+
+
 .cell {
     border: 1px solid darkgrey;
 }

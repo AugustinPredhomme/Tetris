@@ -1,6 +1,7 @@
 class Tetris {
     constructor() {
         this.grid = document.getElementById('grid');
+        this.preview = document.getElementById('preview');
         this.shape = null;
         this.currentPiecePosition = null;
         this.piecesList = [];
@@ -19,7 +20,7 @@ class Tetris {
         for(let i =0; i<4; i++) {
             this.piecesList.push(new Pieces());
         }
-        this.pieces = this.piecesList.shift(); // 1 pièce affichée, 3 en preview
+        this.pieces = this.piecesList.shift(); // 1 pièce utilisée, 3 en preview
         this.drawPiece();
         this.drawPreview();
         this.gameLoop();
@@ -36,7 +37,13 @@ class Tetris {
     }
 
     drawPreview() {
-        
+        const imgElements = this.preview.children;
+        const image = ['O', 'I', 'L', 'J', 'S', 'Z', 'T'];
+        for(let i = 0; i < imgElements.length; i++) {
+            const shapeIndex = this.piecesList[i].pieceShapeIndex;
+            imgElements[i].src = `./img/${image[shapeIndex]}.png`;
+            
+        }
     }
 
     gameLoop() {
